@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	redis "gopkg.in/redis.v3"
+	redis "gopkg.in/redis.v5"
 
 	"gopkg.in/kataras/iris.v6"
 )
