@@ -3,7 +3,7 @@ package cache
 import (
 	"time"
 
-	"github.com/kataras/iris"
+	"gopkg.in/kataras/iris.v6"
 )
 
 const (
@@ -96,25 +96,26 @@ func (c *cache) Serve(ctx *iris.Context) {
 	if ok && time.Now().Before(cachedJSON.CreatedOn.Add(c.config.CacheTimeDuration)) {
 		ctx.SetContentType(c.config.ContentType)
 		if c.config.IrisGzipEnabled {
-			ctx.Response.Header.Set("Content-Encoding", "gzip")
+			ctx.ResponseWriter.Header().Set("Content-Encoding", "gzip")
 		}
 		ctx.SetStatusCode(iris.StatusOK)
-		ctx.SetBody(cachedJSON.Data)
+		ctx.Recorder().SetBody(cachedJSON.Data)
 		return
 	}
 
 	// call other routes
+	ctx.Record()
 	ctx.Set(CtxIrisCacheKey, cacheKey)
 	ctx.Next()
 
 	// check content type
-	contentType := ctx.Response.Header.ContentType()
+	contentType := ctx.ResponseWriter.ContentType()
 	if string(contentType) != c.config.ContentType {
 		return
 	}
 
 	// get computed response
-	bytesToCache := ctx.Response.Body()
+	bytesToCache := ctx.Recorder().Body()
 	fresh := make([]byte, len(bytesToCache))
 	copy(fresh, bytesToCache)
 

@@ -12,7 +12,7 @@ import (
 
 	redis "gopkg.in/redis.v3"
 
-	"github.com/kataras/iris"
+	"gopkg.in/kataras/iris.v6"
 )
 
 const (
@@ -35,7 +35,6 @@ type dummy struct {
 
 func setupMemoryStoreIrisSrv() {
 	engine := iris.New()
-	engine.Config.DisableBanner = true
 	engine.Use(NewCache(cacheConfig, NewInMemoryStore()))
 	engine.Get("/json", func(c *iris.Context) {
 		<-time.After(sleepTime)
@@ -47,7 +46,6 @@ func setupMemoryStoreIrisSrv() {
 
 func setupRedisStoreIrisSrv() {
 	engine := iris.New()
-	engine.Config.DisableBanner = true
 	redisClient := redis.NewClient(&redis.Options{Addr: redisService})
 	if err := redisClient.Ping().Err(); err != nil {
 		panic(err)
